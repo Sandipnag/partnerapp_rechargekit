@@ -1,33 +1,17 @@
+import 'react-native-gesture-handler';
 import React from 'react';
-import {
-  StyleSheet,
-  ScrollView,
-  View,
-  Text,
-  StatusBar,
-  KeyboardAvoidingView,
-  TextInput,
-  Dimensions,
-  SafeAreaView
-} from 'react-native';
-import Dashboard from './src/pages/dashboard';
-import Signin from './src/pages/signin';
-const { width } = Dimensions.get('screen');
+import { NavigationContainer } from '@react-navigation/native';
+import StackNav from './navcontainer/StackNav';
 
-const App = () => {
+import { Provider } from 'react-redux';
+import store from './redux/store';
+
+export default function App() {
   return (
-    // <Signin/>
-    <Dashboard/>
+    <Provider store={store}>
+      <NavigationContainer>
+        <StackNav />
+      </NavigationContainer>
+    </Provider>
   );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FDFEFF',
-    paddingHorizontal: 24
-  },
-  
-});
-
-export default App;
+}
