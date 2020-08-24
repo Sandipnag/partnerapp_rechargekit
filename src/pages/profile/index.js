@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-native/no-inline-styles */
 import React, {useState, useEffect} from 'react';
 import {
@@ -18,6 +19,7 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {Colors} from '../../constants/colors';
 import Api from '../../network/apiCall';
+import AsyncStorage from '@react-native-community/async-storage';
 
 const {width} = Dimensions.get('screen');
 
@@ -29,8 +31,11 @@ const Profile = props => {
   const [DOB, setDOB] = useState('');
   const [photo, setPhoto] = useState('');
   const [address, setAddress] = useState('');
-  useEffect(() => {
-    const auth = '';
+
+  useEffect(async () => {
+    const userLogin = await AsyncStorage.getItem('userLoginData');
+    const auth = userLogin.token;
+
     Api.profileView(auth).then(res => {
       console.log('res === > ', res);
       if (res.status == 200) {

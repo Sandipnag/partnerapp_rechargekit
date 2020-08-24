@@ -27,6 +27,8 @@ import axios from 'axios';
 import {connect} from 'react-redux';
 import {changeLoggedInStatus} from '../../../redux/user/userActions';
 import {LOGIN_SUCCESS_DATA, TOKEN} from '../../../redux/user/userTypes';
+import AsyncStorage from '@react-native-community/async-storage';
+
 const {width} = Dimensions.get('screen');
 
 const Signin = props => {
@@ -41,11 +43,13 @@ const Signin = props => {
       password: password,
     };
 
-    Api.login(data).then(res => {
+    Api.login(data).then(async res => {
       console.log('res === > ', res);
       if (res.status == 200) {
-        props.setToken(res.token);
-        props.setLOGIN_SUCCESS_DATA(res.member);
+        await AsyncStorage.setItem('userLoginData', res);
+
+        // props.setToken(res.token);
+        // props.setLOGIN_SUCCESS_DATA(res.member);
         props.changeLoggedInStatus(true);
       } else {
         setError(res.msg);
