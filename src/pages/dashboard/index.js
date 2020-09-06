@@ -1,3 +1,5 @@
+/* eslint-disable quotes */
+/* eslint-disable prettier/prettier */
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable no-undef */
 import React, {useState} from 'react';
@@ -25,7 +27,10 @@ import RadioForm, {
   RadioButtonLabel,
 } from 'react-native-simple-radio-button';
 import {Colors} from '../../constants/colors';
-
+import {
+  MOBILE_PREPAID,
+  MOBILE_POSTPAID,
+} from '../../../redux/RechargeType/Type';
 import {connect} from 'react-redux';
 import {changeLoggedInStatus} from '../../../redux/user/userActions';
 
@@ -132,39 +137,91 @@ const Dashboard = props => {
             <Text style={styles.addMoneyText}>Add</Text>
           </View>
         </View>
+
+        {/* Recharge & Bills Pay */}
+
         <Text style={styles.sectionHeader}>Recharge & Bills Pay</Text>
+
         <View
-          onLayout={e => {
-            this.calculate(e);
-          }}
+          // onLayout={e => {
+          //   this.calculate(e);
+          // }}
           style={styles.gridContainer}>
-          {data.map((single, index) => (
+
             <TouchableOpacity
               onPress={() => {
+               props.setPrepaid(true);
                 props.navigation.push('Recharge');
               }}
-              key={index}
-              style={[
-                single.empty == true ? {} : styles.item,
-                {
-                  width: boxsize,
-                  height: boxsize,
-                  justifyContent: 'space-around',
-                },
-              ]}>
-              <EvilIcons color={'#7F11B5'} name={single.name} size={30} />
+              style={styles.recharge_bill_innerContainer}>
+              <EvilIcons color={'#7F11B5'} name="bell" size={30} style={{alignSelf:"center"}} />
               <Text
-                style={{
-                  textAlign: 'center',
-                  color: Colors.fadeBlack200,
-                  fontSize: boxsize * 0.15,
-                  fontFamily: FontFamily.RobotoMedium,
-                }}>
-                {single.code}
+                style={styles.recharge_bill_text}>
+                Mobile Prepaid
               </Text>
             </TouchableOpacity>
-          ))}
+            <TouchableOpacity
+              onPress={() => {
+              //  props.setPrepaid(true);
+              //   props.navigation.push('Recharge');
+              }}
+              style={styles.recharge_bill_innerContainer}>
+              <EvilIcons color={'#7F11B5'} name="bell" size={30} style={{alignSelf:"center"}} />
+              <Text
+                style={styles.recharge_bill_text}>
+                DTH
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+              //  props.setPrepaid(true);
+              //   props.navigation.push('Recharge');
+              }}
+              style={styles.recharge_bill_innerContainer}>
+              <EvilIcons color={'#7F11B5'} name="bell" size={30} style={{alignSelf:"center"}} />
+              <Text
+                style={styles.recharge_bill_text}>
+                Electricity
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+              //  props.setPrepaid(true);
+              //   props.navigation.push('Recharge');
+              }}
+              style={styles.recharge_bill_innerContainer}>
+              <EvilIcons color={'#7F11B5'} name="bell" size={30} style={{alignSelf:"center"}} />
+              <Text
+                style={styles.recharge_bill_text}>
+                Book A Cyclinder
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+               props.setPostpaid(true);
+                props.navigation.push('Recharge');
+              }}
+              style={styles.recharge_bill_innerContainer}>
+              <EvilIcons color={'#7F11B5'} name="bell" size={30} style={{alignSelf:"center"}} />
+              <Text
+                style={styles.recharge_bill_text}>
+                Mobile Postpaid
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                // props.navigation.push('Recharge');
+              }}
+              style={styles.recharge_bill_innerContainer}>
+              <EvilIcons color={'#7F11B5'} name="bell" size={30} style={{alignSelf:"center"}} />
+              <Text
+                style={styles.recharge_bill_text}>
+                Broadband
+              </Text>
+            </TouchableOpacity>
+          
         </View>
+
         <View style={{marginHorizontal: 15, height: 100}}>
           <Image
             source={require('../../assets/images/new_arrival.png')}
@@ -172,6 +229,10 @@ const Dashboard = props => {
             style={{width: null, height: null, flex: 1}}
           />
         </View>
+
+        {/* Recharge & Bills Pay History */}
+
+
         <View style={styles.planListing}>
           <View
             style={{
@@ -656,8 +717,22 @@ const styles = StyleSheet.create({
     marginHorizontal: 15,
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
     marginVertical: 15,
+  },
+  recharge_bill_innerContainer: {
+    backgroundColor: Colors.fadeMagenta,
+    width: (width - 200) * 0.4,
+    height: (width - 200) * 0.4,
+    justifyContent: 'space-around',
+    marginBottom: 10,
+    marginHorizontal: (width - 200) * 0.025,
+  },
+  recharge_bill_text: {
+    textAlign: 'center',
+    color: Colors.fadeBlack200,
+    fontSize: (width - 200) * 0.058,
+    fontFamily: FontFamily.RobotoMedium,
   },
   item: {
     backgroundColor: Colors.fadeMagenta,
@@ -723,6 +798,10 @@ const mapDispatchToProps = dispatch => {
     changeLoggedInStatus: () => {
       dispatch(changeLoggedInStatus(false));
     },
+    setPrepaid: async no =>
+      await dispatch({type: MOBILE_PREPAID, payload: no}),
+    setPostpaid: async no =>
+      await dispatch({type: MOBILE_POSTPAID, payload: no}),
   };
 };
 

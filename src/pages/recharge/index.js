@@ -1,5 +1,8 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable prettier/prettier */
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -11,13 +14,24 @@ import {
   Image,
   FlatList,
   TouchableOpacity,
+  Picker,
 } from 'react-native';
 import FontFamily from '../../constants/Font';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import {Colors} from '../../constants/colors';
-const {width} = Dimensions.get('screen');
+import {
+  MOBILE_PREPAID,
+  MOBILE_POSTPAID,
+} from '../../../redux/RechargeType/Type';
+import {connect} from 'react-redux';
+import Api from '../../network/apiCall';
+import AsyncStorage from '@react-native-community/async-storage';
+import {concat} from 'react-native-reanimated';
+import RNPickerSelect from 'react-native-picker-select';
+
+const {width, height} = Dimensions.get('screen');
 
 const RecentRecharge = ({data}) => {
   const {icon, mobile, text} = data;
@@ -155,6 +169,105 @@ const Recharge = props => {
       text: '* Term and Conditions',
     },
   ]);
+
+  const [OperatorList, setOperatorList] = useState([]);
+  const [Circlelist, setCirclelist] = useState([]);
+  const [MobileNo, setMobileNo] = useState('');
+  const [Price, setPrice] = useState('');
+  const [operator, setoperator] = useState('operator');
+  const [Circle, setCircle] = useState('Circle');
+
+  useEffect(async () => {
+    const userLogin = await AsyncStorage.getItem('userLoginData');
+    const auth = userLogin ? userLogin.token : null;
+
+    console.log('lkhiefeiowh', operator, Circle, Price, MobileNo);
+    if (props.prepaid) {
+      Api.prepaidOperatorlist(auth).then(res => {
+        console.log('res === > ', res);
+        if (res.status == 200) {
+          setOperatorList(res.data);
+        }
+      });
+      Api.prepaidCirclelist(auth).then(res => {
+        console.log('res === > ', res);
+        if (res.status == 200) {
+          setCirclelist(res.data);
+        }
+      });
+    }
+
+    if (props.postpaid) {
+      Api.postpaidoperatorlist(auth).then(res => {
+        console.log('res === > ', res);
+        if (res.status == 200) {
+          setOperatorList(res.data);
+        }
+      });
+      Api.postpaidcirclelist(auth).then(res => {
+        console.log('res === > ', res);
+        if (res.status == 200) {
+          setCirclelist(res.data);
+        }
+      });
+    }
+  });
+
+  const SubmitRecharge = async () => {
+    const userLogin = await AsyncStorage.getItem('userLoginData');
+    const auth = userLogin.token;
+
+    if (props.prepaid) {
+      const data = {
+        mobile_no: MobileNo,
+        mobile_operator: operator,
+        recharge_type: 'normal',
+        circle_code: Circle,
+        trans_pin: 123,
+        price: Price,
+      };
+      Api.prepaidRecharge(auth, data).then(res => {
+        console.log('res === > ', res);
+        if (res.status == 200) {
+          console.log('success response === > ', res);
+        }
+      });
+    }
+
+    if (props.postpaid) {
+      const data = {
+        mobile_no: MobileNo,
+        mobile_operator: operator,
+        recharge_type: 'normal',
+        circle_code: Circle,
+        trans_pin: 123,
+        price: Price,
+      };
+      Api.postpaidRecharge(auth, data).then(res => {
+        console.log('res === > ', res);
+        if (res.status == 200) {
+          console.log('success response === > ', res);
+        }
+      });
+    }
+  };
+
+  const storePrice = no => {
+    setPrice(no);
+  };
+  const storeMobileNo = no => {
+    setMobileNo(no);
+  };
+
+  const handleSelectedoperator = value => {
+    console.log(value);
+    setoperator(value);
+  };
+
+  const handleSelectedCircle = value => {
+    setCircle(value);
+  };
+
   return (
     <View style={styles.container}>
       <SafeAreaView>
@@ -194,19 +307,23 @@ const Recharge = props => {
             <View style={{flexDirection: 'row'}}>
               <View style={[styles.radioContainer, {marginRight: 20}]}>
                 <View style={styles.radioOuterCircle}>
-                  <View style={styles.radioInnerCircle} />
+                  {props.prepaid && <View style={styles.radioInnerCircle} />}
                 </View>
                 <Text style={{marginLeft: 9}}>Prepaid</Text>
               </View>
               <View style={styles.radioContainer}>
                 <View style={styles.radioOuterCircle}>
-                  {false && <View style={styles.radioInnerCircle} />}
+                  {props.postpaid && <View style={styles.radioInnerCircle} />}
                 </View>
                 <Text style={{marginLeft: 9}}>Postpaid</Text>
               </View>
             </View>
             <View style={styles.numberContainer}>
-              <TextInput placeholder={'Enter Number'} />
+              <TextInput
+                placeholder={'Enter Number'}
+                // value={MobileNo}
+                onChangeText={no => setMobileNo(no)}
+              />
               <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <Text
                   style={{
@@ -241,7 +358,23 @@ const Recharge = props => {
                   paddingVertical: 10,
                   width: '45%',
                 }}>
-                <Text
+                <Picker
+                  selectedValue={operator}
+                  // value={"operator"}
+                  style={{height: 20, width: '45%'}}
+                  onValueChange={(itemValue, itemIndex) =>
+                    handleSelectedoperator(itemValue)
+                  }>
+                  <Picker.Item label="Select operator" value="operator" />
+                  {OperatorList &&
+                    OperatorList.map((OperatorItem, OperatorIndex) => (
+                      <Picker.Item
+                        label={OperatorItem.operator_name}
+                        value={OperatorItem.operator_id}
+                      />
+                    ))}
+                </Picker>
+                {/* <Text
                   style={{
                     fontFamily: FontFamily.RobotoMedium,
                     fontSize: 12,
@@ -250,7 +383,7 @@ const Recharge = props => {
                   }}>
                   Airtel
                 </Text>
-                <AntDesign color={'#34495E'} name={'downcircle'} size={15} />
+                <AntDesign color={'#34495E'} name={'downcircle'} size={15} /> */}
               </View>
               <View
                 style={{
@@ -264,7 +397,31 @@ const Recharge = props => {
                   paddingVertical: 10,
                   width: '45%',
                 }}>
-                <Text
+                <Picker
+                  selectedValue={Circle}
+                  // value={Circle}
+                  style={{height: 20, width: '45%'}}
+                  importantForAccessibility={
+                    <AntDesign
+                      color={'#34495E'}
+                      name={'downcircle'}
+                      size={15}
+                    />
+                  }
+                  onValueChange={(itemValue, itemIndex) =>
+                    handleSelectedCircle(itemValue)
+                  }>
+                  <Picker.Item label="Select circle" value={'Circle'} />
+                  {Circlelist &&
+                    Circlelist.map((CircleItem, CircleIndex) => (
+                      <Picker.Item
+                        label={CircleItem.circle_name}
+                        value={CircleItem.circle_code}
+                      />
+                    ))}
+                </Picker>
+
+                {/* <Text
                   style={{
                     fontFamily: FontFamily.RobotoMedium,
                     fontSize: 12,
@@ -273,7 +430,7 @@ const Recharge = props => {
                   }}>
                   West Bengal
                 </Text>
-                <AntDesign color={'#34495E'} name={'downcircle'} size={15} />
+                <AntDesign color={'#34495E'} name={'downcircle'} size={15} /> */}
               </View>
             </View>
             <View
@@ -298,7 +455,11 @@ const Recharge = props => {
                   size={20}
                   style={{marginRight: 11}}
                 />
-                <TextInput placeholder={'Enter Amount'} />
+                <TextInput
+                  placeholder={'Enter Amount'}
+                  // value={Price}
+                  onChangeText={no => setPrice(no)}
+                />
               </View>
               <TouchableOpacity
                 onPress={() => props.navigation.navigate('AllPlans')}
@@ -322,6 +483,7 @@ const Recharge = props => {
               </TouchableOpacity>
             </View>
           </View>
+
           <View style={styles.scrollContainer}>
             <Text
               style={{
@@ -358,12 +520,13 @@ const Recharge = props => {
           </View>
         </ScrollView>
       </View>
-      <View
+      <TouchableOpacity
         style={{
           backgroundColor: '#2234D8',
           justifyContent: 'center',
           alignItems: 'center',
-        }}>
+        }}
+        onPress={SubmitRecharge}>
         <Text
           style={{
             fontFamily: FontFamily.RobotoBold,
@@ -375,7 +538,7 @@ const Recharge = props => {
           }}>
           Recharge
         </Text>
-      </View>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -439,4 +602,27 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Recharge;
+const mapStateToProps = state => {
+  // console.log('state', state.rechargeTypeReducer.prepaid);
+  return {
+    prepaid: state.rechargeTypeReducer.prepaid,
+    postpaid: state.rechargeTypeReducer.postpaid,
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    // changeLoggedInStatus: () => {
+    //   dispatch(changeLoggedInStatus(false));
+    // },
+    // setPrepaid: async no =>
+    //   await dispatch({type: MOBILE_PREPAID, payload: no}),
+    // setPostpaid: async no =>
+    //   await dispatch({type: MOBILE_POSTPAID, payload: no}),
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(Recharge);

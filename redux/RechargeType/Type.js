@@ -1,0 +1,2 @@
+export const MOBILE_PREPAID = 'MOBILE_PREPAID';
+export const MOBILE_POSTPAID = 'MOBILE_POSTPAID';
